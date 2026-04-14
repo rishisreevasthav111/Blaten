@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Movie Recommender</title>
+    <style>
+        body { font-family: Arial; background: #111; color: white; padding: 40px; }
+        input { padding: 10px; width: 300px; font-size: 16px; }
+        button { padding: 10px 20px; font-size: 16px; background: #e50914; color: white; border: none; cursor: pointer; }
+        table { margin-top: 30px; border-collapse: collapse; width: 100%; }
+        th { background: #e50914; padding: 10px; }
+        td { padding: 10px; border-bottom: 1px solid #333; }
+        tr:hover { background: #222; }
+    </style>
+</head>
+<body>
+    <h1>🎬BLATEN MOVIE RECOMMENDER</h1>
+    <input type="text" id="movieInput" placeholder="e.g. Toy Story (1995)" />
+    <button onclick="getRecommendations()">Recommend</button>
+    <div id="results"></div>
+
+    <script>
+        async function getRecommendations() {
+            const title = document.getElementById("movieInput").value;
+            document.getElementById("results").innerHTML = "<p>Loading...</p>";
+
+            const response = await fetch("/recommend", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title: title })
+            });
+
+            if (!response.ok) {
+                document.getElementById("results").innerHTML = "<p style='color:red'>Movie not found!</p>";
+                return;
+            }
+
+            const movies = await response.json();
+            let html = `<table>
+                <tr><th>#</th><th>Title</th><th>Genres</th><th>Avg Rating</th><th>Sentiment</th><th>Score</th></tr>`;
+            movies.forEach((m, i) => {
+                html += `<tr>
+                    <td>${i+1}</td>
+                    <td>${m.title}</td>
+                    <td>${m.genres}</td>
+                    <td>${m.avg_rating}</td>
+                    <td>${m.sentiment_label}</td>
+                    <td>${m.Blaten_score.toFixed(4)}</td>
+                </tr>`;
+            });
+            html += "</table>";
+            document.getElementById("results").innerHTML = html;
+        }
+    </script>
+</body>
+</html>
